@@ -1,6 +1,4 @@
-# should be the same as ${OUTLINK} in ./Makefile
-result
-
-# sources
+venv
+requirements
 octavia
 octavia-f5-provider-driver

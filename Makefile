@@ -1,28 +1,27 @@
-OUTLINK=result # should be included in .gitignore
+VENV=venv
+BRANCH=stable/ussuri-m3
 .PHONY: activate clean
 .DEFAULT: activate
 
 
-activate: octavia octavia-f5-provider-driver ${OUTLINK}
-	bash -c 'exec ${OUTLINK}/bin/activate.sh'
+activate: ${VENV}/bin/activate
+	bash -c '. $<;exec bash'
 
-${OUTLINK}: default.nix builder.sh
-	nix-build $< -o ${OUTLINK}
+${VENV}/bin/activate: requirements octavia octavia-f5-provider-driver
+	mkdir -p ${VENV}
+	nix-shell -p python38Packages.virtualenv --run 'virtualenv ${VENV} && . $@ && pip install -c requirements/upper-constraints.txt -e octavia && pip install -c requirements/upper-constraints.txt -e octavia-f5-provider-driver'
 
 
 # repos
 
+requirements:
+	git clone -b ${BRANCH} https://github.com/sapcc/requirements
+
 octavia:
-	git clone https://github.com/sapcc/octavia
+	git clone -b ${BRANCH} https://github.com/sapcc/octavia
 
 octavia-f5-provider-driver:
-	git clone https://github.com/sapcc/octavia-f5-provider-driver
+	git clone -b ${BRANCH} https://github.com/sapcc/octavia-f5-provider-driver
 
-update: octavia octavia-f5-provider-driver
+update: requirements octavia octavia-f5-provider-driver
 	$(foreach repo, $+, git -C ${repo} pull;)
-
-
-# other
-
-clean:
-	rm ${OUTLINK}
