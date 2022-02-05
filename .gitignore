@@ -1,1 +1,6 @@
+# should be the same as ${OUTLINK} in ./Makefile
 result
+
+# sources
+octavia
+octavia-f5-provider-driver

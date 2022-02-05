@@ -1,23 +1,25 @@
-# Example from https://churchman.nl/2019/01/22/using-nix-to-create-python-virtual-environments/
+{
+  pkgs ? import <nixpkgs> {},
+  system ? builtins.currentSystem,
 
-{ pkgs ? import <nixpkgs> {}}:
+  # dependencies
+  bash ? pkgs.bash,
+  findutils ? pkgs.findutils,
+  virtualenv ? pkgs.python38Packages.virtualenv,
+
+  # other
+  upperconstraints ? builtins.fetchurl "https://raw.githubusercontent.com/sapcc/requirements/stable/ussuri-m3/upper-constraints.txt",
+}:
 
 with pkgs;
-let
-  my-python-packages = python-packages: [
-    python-packages.pip
-    python-packages.numpy
-  ];
-  my-python = python36.withPackages my-python-packages;
-in
-  pkgs.mkShell {
-    buildInputs = [
-      bashInteractive
-      my-python
-    ];
-    shellHook = ''
-      export PIP_PREFIX="$(pwd)/_build/pip_packages"
-      export PYTHONPATH="$(pwd)/_build/pip_packages/lib/python3.6/site-packages:$PYTHONPATH"
-      unset SOURCE_DATE_EPOCH
-    '';
-  }
+derivation {
+  name = "octavia-virtualenv";
+  inherit system;
+  builder = "${bash}/bin/bash";
+  args = [ ./builder.sh ];
+
+  # builder env
+  inherit bash coreutils findutils upperconstraints virtualenv;
+  octavia = ./octavia;
+  f5pd = ./octavia-f5-provider-driver;
+}
