@@ -5,7 +5,7 @@ BRANCH=stable/ussuri-m3
 
 
 activate: ${VENV}/bin/activate
-	bash -c '. $<;exec bash'
+	bash --rcfile $<
 
 ${VENV}/bin/activate: requirements octavia octavia-f5-provider-driver
 	mkdir -p ${VENV}
