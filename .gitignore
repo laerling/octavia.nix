@@ -1,4 +1,7 @@
+# virtual environment
 venv
+
+# repos
 requirements
 octavia
 octavia-f5-provider-driver
